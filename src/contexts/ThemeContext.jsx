@@ -1,0 +1,195 @@
+import React, { createContext, useContext, useMemo } from 'react'
+import { createTheme, ThemeProvider } from '@mui/material/styles'
+
+const ThemeContext = createContext()
+
+// Default theme for fallback
+const defaultTheme = {
+  theme: createTheme({
+    palette: {
+      primary: { main: '#1976d2', light: '#42a5f5', dark: '#1565c0', contrastText: '#ffffff' },
+      secondary: { main: '#2196f3', light: '#64b5f6', dark: '#1976d2', contrastText: '#ffffff' },
+      background: { default: '#fafafa', paper: '#ffffff' },
+      mode: 'light'
+    }
+  }),
+  role: 'employee',
+  colors: {
+    primary: { main: '#1976d2', light: '#42a5f5', dark: '#1565c0', contrastText: '#ffffff' },
+    secondary: { main: '#2196f3', light: '#64b5f6', dark: '#1976d2', contrastText: '#ffffff' },
+    background: { default: '#fafafa', paper: '#ffffff' },
+    header: { main: '#1976d2', gradient: 'linear-gradient(135deg, #1976d2 0%, #2196f3 100%)' }
+  }
+}
+
+export const useTheme = () => {
+  const context = useContext(ThemeContext)
+  return context || defaultTheme
+}
+
+const roleThemes = {
+  admin: {
+    primary: {
+      main: '#0f172a', // Deep Slate
+      light: '#1e293b',
+      dark: '#020617',
+      contrastText: '#ffffff'
+    },
+    secondary: {
+      main: '#38bdf8', // Sky blue accent
+      light: '#7dd3fc',
+      dark: '#0284c7',
+      contrastText: '#ffffff'
+    },
+    background: {
+      default: '#f1f5f9',
+      paper: '#ffffff'
+    },
+    header: {
+      main: '#0f172a',
+      gradient: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
+    }
+  },
+  hr: {
+    primary: {
+      main: '#FFC107', // Amber 500
+      light: '#FFD54F', // Amber 300
+      dark: '#FFA000', // Amber 700
+      contrastText: '#000000'
+    },
+    secondary: {
+      main: '#FF9800', // Orange 500
+      light: '#FFB74D', // Orange 300
+      dark: '#F57C00', // Orange 700
+      contrastText: '#000000'
+    },
+    background: {
+      default: '#fafafa',
+      paper: '#ffffff'
+    },
+    header: {
+      main: '#FFC107',
+      gradient: 'linear-gradient(135deg, #FFC107 0%, #FF9800 100%)'
+    }
+  },
+  employee: {
+    primary: {
+      main: '#2563eb', // Royal Blue
+      light: '#3b82f6',
+      dark: '#1d4ed8',
+      contrastText: '#ffffff'
+    },
+    secondary: {
+      main: '#10b981', // Emerald accent
+      light: '#34d399',
+      dark: '#059669',
+      contrastText: '#ffffff'
+    },
+    background: {
+      default: '#f8fafc',
+      paper: '#ffffff'
+    },
+    header: {
+      main: '#2563eb',
+      gradient: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)'
+    }
+  },
+  hybrid: {
+    primary: {
+      main: '#9c27b0', // Purple for hybrid
+      light: '#ba68c8',
+      dark: '#7b1fa2',
+      contrastText: '#ffffff'
+    },
+    secondary: {
+      main: '#673ab7',
+      light: '#9575cd',
+      dark: '#512da8',
+      contrastText: '#ffffff'
+    },
+    background: {
+      default: '#fafafa',
+      paper: '#ffffff'
+    },
+    header: {
+      main: '#9c27b0',
+      gradient: 'linear-gradient(135deg, #9c27b0 0%, #673ab7 50%, #3f51b5 100%)'
+    }
+  }
+}
+
+export const RoleThemeProvider = ({ children, role }) => {
+  const theme = useMemo(() => {
+    const roleTheme = roleThemes[role] || roleThemes.employee
+
+    // Minimal theme to avoid MUI conflicts
+    return createTheme({
+      palette: {
+        primary: roleTheme.primary,
+        secondary: roleTheme.secondary,
+        background: roleTheme.background,
+        mode: 'light'
+      },
+      typography: {
+        fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+        h4: {
+          fontWeight: 600,
+          fontSize: '2rem',
+          lineHeight: 1.2
+        },
+        h6: {
+          fontWeight: 600,
+          fontSize: '1.25rem',
+          lineHeight: 1.4
+        },
+        body1: {
+          fontWeight: 400,
+          fontSize: '1rem',
+          lineHeight: 1.5
+        }
+      },
+      components: {
+        MuiButton: {
+          styleOverrides: {
+            root: {
+              textTransform: 'none',
+              borderRadius: 8,
+              fontWeight: 500,
+              padding: '8px 16px',
+              fontSize: '0.875rem',
+              boxShadow: 'none'
+            },
+            tableCell: {
+              borderBottom: '1px solid #e2e8f0',
+              fontSize: '0.875rem'
+            },
+            tableHeadCell: {
+              backgroundColor: '#f8fafc',
+              fontWeight: 600,
+              color: '#1e293b'
+            }
+          }
+        },
+        MuiAppBar: {
+          styleOverrides: {
+            root: {
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              borderBottom: '1px solid #e2e8f0',
+              color: roleTheme.primary.main
+            }
+          }
+        }
+      }
+    })
+  }, [role])
+
+  return (
+    <ThemeContext.Provider value={{ theme, role, colors: roleThemes[role] || roleThemes.employee }}>
+      <ThemeProvider theme={theme}>
+        {children}
+      </ThemeProvider>
+    </ThemeContext.Provider>
+  )
+}
+
+export default RoleThemeProvider
