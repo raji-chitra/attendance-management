@@ -65,7 +65,14 @@ app.use('/api/hybrid-permissions', hybridPermissionRoutes);
 import leaveRoutes from './routes/leaveRoutes.js';
 app.use('/api/leaves', leaveRoutes);
 
-// Seed database with UI data if empty
+// Serve static files from the React app build directory
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(join(__dirname, '..', 'dist')));
+  // Handles any requests that don't match the ones above
+  app.get('*', (req, res) => {
+    res.sendFile(join(__dirname, '..', 'dist', 'index.html'));
+  });
+}
 const seedDatabase = async () => {
   // Check if employees exist to avoid re-seeding
   const count = await Employee.countDocuments();
